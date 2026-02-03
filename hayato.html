@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>資料</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+    input {
+      font-size: 16px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>パスワードを入力してください</h2>
+<input type="password" id="pw">
+<button onclick="check()">開く</button>
+
+<p id="msg"></p>
+
+<script>
+  const PASSWORD = "🍖🍖🍖"; // ←好きなパスワード
+
+  function check() {
+    const input = document.getElementById("pw").value;
+    if (input === PASSWORD) {
+      location.href = "https://docs.google.com/presentation/d/1an5c1no5gVfD9eraj6XgeXOrkQ0baJImVWR-OWLp5Ik/edit?slide=id.p#slide=id.p";
+    } else {
+      document.getElementById("msg").textContent = "パスワードが違います";
+    }
+  }
+</script>
+
+</body>
+</html>
