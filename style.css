@@ -1,0 +1,19 @@
+body {
+  font-family: sans-serif;
+  background: #111;
+  color: white;
+  text-align: center;
+}
+
+#chat {
+  max-width: 600px;
+  margin: 20px auto;
+  text-align: left;
+}
+
+.message {
+  background: #222;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
