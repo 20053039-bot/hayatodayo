@@ -1,40 +1,24 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>資料</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 100px;
-    }
-    input {
-      font-size: 16px;
-      padding: 5px;
-    }
-  </style>
+  <title>チャット</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>パスワードを入力してください</h2>
-<input type="password" id="pw">
-<button onclick="check()">開く</button>
+<h1>チャット</h1>
 
-<p id="msg"></p>
+<div id="chat"></div>
 
-<script>
-  const PASSWORD = "🍖🍖🍖"; // ←好きなパスワード
+<div class="form">
+  <input id="name" placeholder="名前">
+  <input id="message" placeholder="メッセージ">
+  <button onclick="sendMessage()">送信</button>
+</div>
 
-  function check() {
-    const input = document.getElementById("pw").value;
-    if (input === PASSWORD) {
-      location.href = "https://docs.google.com/presentation/d/1an5c1no5gVfD9eraj6XgeXOrkQ0baJImVWR-OWLp5Ik/edit?slide=id.p#slide=id.p";
-    } else {
-      document.getElementById("msg").textContent = "パスワードが違います";
-    }
-  }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 
 </body>
 </html>
