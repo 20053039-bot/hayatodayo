@@ -6,36 +6,61 @@ const supabase = window.supabase.createClient(
   SUPABASE_KEY
 );
 
+function addMessage(msg) {
+  const chat = document.getElementById("chat");
+
+  chat.innerHTML += `
+    <div class="message">
+      <strong>${msg.name}</strong>: ${msg.message}
+    </div>
+  `;
+}
+
 async function loadMessages() {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("chat")
     .select("*")
     .order("id", { ascending: true });
 
+  if (error) {
+    console.error(error);
+    return;
+  }
+
   const chat = document.getElementById("chat");
   chat.innerHTML = "";
 
-  data.forEach(msg => {
-    chat.innerHTML += `
-      <div class="message">
-        <strong>${msg.name}</strong>: ${msg.message}
-      </div>
-    `;
-  });
+  data.forEach(addMessage);
 }
 
 async function sendMessage() {
   const name = document.getElementById("name").value;
   const message = document.getElementById("message").value;
 
-  await supabase.from("chat").insert([
-    { name, message }
-  ]);
+  if (!name || !message) return;
+
+  const { error } = await supabase
+    .from("chat")
+    .insert([{ name, message }]);
+
+  if (error) {
+    console.error(error);
+  }
 
   document.getElementById("message").value = "";
-  loadMessages();
 }
 
+// 初期読み込み
 loadMessages();
 
-setInterval(loadMessages, 2000);
+// 🔥 リアルタイム購読
+supabase
+  .channel("chat-room")
+  .on(
+    "postgres_changes",
+    { event: "INSERT", schema: "public", table: "chat" },
+    payload => {
+      addMessage(payload.new);
+    }
+  )
+  .subscribe();
