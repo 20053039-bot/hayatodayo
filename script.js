@@ -1,5 +1,5 @@
 const SUPABASE_URL = "https://ajilqmhulukgnljjklwz.supabase.co";
-const SUPABASE_KEY = "YOUR_PUBLIC_ANON_KEY"; // ← anon public keyにしてね
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqaWxxbWh1bHVrZ25samprbHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMzgxOTIsImV4cCI6MjA4NTcxNDE5Mn0.iLRmyMyuDSsTQO2WZpZ4tCPYtY5vEmLS9-CT4ai-508"; // ← anon public keyにしてね
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
