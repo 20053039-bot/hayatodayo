@@ -1,66 +1,81 @@
 const SUPABASE_URL = "https://ajilqmhulukgnljjklwz.supabase.co";
-const SUPABASE_KEY = "sb_publishable_4iQaavGyaW6GSEjQdwCLKw_skhKUv6T";
+const SUPABASE_KEY = "YOUR_PUBLIC_ANON_KEY"; // ← anon public keyにしてね
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
-function addMessage(msg) {
-  const chat = document.getElementById("chat");
+const chatBox = document.getElementById("chat");
 
-  chat.innerHTML += `
-    <div class="message">
-      <strong>${msg.name}</strong>: ${msg.message}
-    </div>
-  `;
-}
-
+// ----------------------
+// メッセージ読み込み
+// ----------------------
 async function loadMessages() {
   const { data, error } = await supabase
-    .from("chat")
+    .from("comments")
     .select("*")
     .order("id", { ascending: true });
 
   if (error) {
-    console.error(error);
+    console.error("読み込みエラー:", error);
     return;
   }
 
-  const chat = document.getElementById("chat");
-  chat.innerHTML = "";
+  chatBox.innerHTML = "";
 
-  data.forEach(addMessage);
+  data.forEach(msg => {
+    const div = document.createElement("div");
+    div.className = "message";
+    div.innerHTML = `<strong>${msg.name}</strong>: ${msg.comment}`;
+    chatBox.appendChild(div);
+  });
+
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// ----------------------
+// 送信
+// ----------------------
 async function sendMessage() {
-  const name = document.getElementById("name").value;
-  const message = document.getElementById("message").value;
+  const nameInput = document.getElementById("name");
+  const messageInput = document.getElementById("message");
 
-  if (!name || !message) return;
+  const name = nameInput.value.trim();
+  const comment = messageInput.value.trim();
+
+  if (!name || !comment) return;
 
   const { error } = await supabase
-    .from("chat")
-    .insert([{ name, message }]);
+    .from("comments")
+    .insert([{ name, comment }]);
 
   if (error) {
-    console.error(error);
+    console.error("送信エラー:", error);
+    return;
   }
 
-  document.getElementById("message").value = "";
+  messageInput.value = "";
 }
 
-// 初期読み込み
-loadMessages();
-
-// 🔥 リアルタイム購読
+// ----------------------
+// リアルタイム同期
+// ----------------------
 supabase
-  .channel("chat-room")
+  .channel("realtime-comments")
   .on(
     "postgres_changes",
-    { event: "INSERT", schema: "public", table: "chat" },
-    payload => {
-      addMessage(payload.new);
+    {
+      event: "*",
+      schema: "public",
+      table: "comments"
+    },
+    () => {
+      loadMessages();
     }
   )
   .subscribe();
+
+
+// 初回読み込み
+loadMessages();
