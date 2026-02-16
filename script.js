@@ -41,18 +41,23 @@ async function sendMessage() {
   const name = document.getElementById("name").value;
   const message = document.getElementById("message").value;
 
-  if (!name || !message) return;
-
-  const { error } = await supabase
-    .from("chat")
-    .insert([{ name, message }]);
-
-  if (error) {
-    document.body.innerHTML += "<p style='color:red'>" + error.message + "</p>";
+  if (!name || !message) {
+    alert("空欄があります");
     return;
   }
 
-  document.getElementById("message").value = "";
+  const { data, error } = await supabase
+    .from("chat")
+    .insert([{ name, message }])
+    .select();
+
+  if (error) {
+    alert("エラー: " + error.message);
+    console.error(error);
+    return;
+  }
+
+  alert("成功しました");
 }
 
 // ----------------------
