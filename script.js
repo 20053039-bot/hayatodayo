@@ -1,6 +1,5 @@
 const SUPABASE_URL = "https://ajilqmhulukgnljjklwz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqaWxxbWh1bHVrZ25samprbHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMzgxOTIsImV4cCI6MjA4NTcxNDE5Mn0.iLRmyMyuDSsTQO2WZpZ4tCPYtY5vEmLS9-CT4ai-508";
-
 const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -22,10 +21,14 @@ async function loadMessages() {
   data.forEach(msg => {
     const div = document.createElement("div");
     div.className = "message";
+
     div.innerHTML = `
       <strong>${escapeHTML(msg.name)}</strong>: 
       ${escapeHTML(msg.message)}
+      <br>
+      <button onclick="deleteMessage(${msg.id})">削除</button>
     `;
+
     chatDiv.appendChild(div);
   });
 }
@@ -52,6 +55,20 @@ async function sendMessage() {
   loadMessages();
 }
 
+async function deleteMessage(id) {
+  const { error } = await supabaseClient
+    .from("chat")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  loadMessages();
+}
+
 function escapeHTML(str) {
   return str
     .replace(/&/g, "&amp;")
@@ -60,5 +77,6 @@ function escapeHTML(str) {
 }
 
 window.sendMessage = sendMessage;
+window.deleteMessage = deleteMessage;
 
 loadMessages();
