@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const SUPABASE_URL = "https://ajilqmhulukgnljjklwz.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqaWxxbWh1bHVrZ25samprbHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMzgxOTIsImV4cCI6MjA4NTcxNDE5Mn0.iLRmyMyuDSsTQO2WZpZ4tCPYtY5vEmLS9-CT4ai-508";
-";
 
   const supabase = window.supabase.createClient(
     SUPABASE_URL,
@@ -13,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadMessages() {
     const { data, error } = await supabase
-      .from("chat")   // ← 前と同じにする
+      .from("chat")
       .select("*")
       .order("id", { ascending: true });
 
@@ -27,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     data.forEach(msg => {
       chatBox.innerHTML += `
         <div class="message">
-          <strong>${msg.name}</strong>: ${msg.comment}
+          <strong>${msg.name}</strong>: ${msg.message}
         </div>
       `;
     });
@@ -37,11 +36,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const name = document.getElementById("name").value;
     const message = document.getElementById("message").value;
 
-    if (!name || !message) return;
+    if (!name || !message) {
+      alert("空欄があります");
+      return;
+    }
 
     const { error } = await supabase
-      .from("chat")   // ← ここも統一
-      .insert([{ name, comment: message }]);
+      .from("chat")
+      .insert([{ name, message }]);
 
     if (error) {
       alert(error.message);
