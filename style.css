@@ -1,48 +1,107 @@
+/* 全体 */
 body {
-  font-family: sans-serif;
-  background: #111;
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #0f0f0f, #1c1c1c);
   color: white;
   text-align: center;
-  margin: 0;
 }
 
+/* タイトル */
 h1 {
   margin-top: 20px;
+  font-size: 28px;
+  letter-spacing: 2px;
 }
 
+/* チャット枠 */
 #chat {
-  max-width: 600px;
+  max-width: 700px;
+  height: 400px;
   margin: 20px auto;
+  padding: 15px;
+  overflow-y: auto;
+  background: #181818;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.2);
   text-align: left;
 }
 
+/* メッセージ */
 .message {
-  background: #222;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
+  background: #242424;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  transition: 0.2s;
+  word-break: break-word;
 }
 
+.message:hover {
+  background: #2f2f2f;
+}
+
+/* 名前 */
+.message strong {
+  color: #00ffd5;
+}
+
+/* 入力フォーム */
 .form {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
+/* 入力欄 */
 input {
-  padding: 8px;
+  padding: 10px;
   margin: 5px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: none;
+  outline: none;
+  width: 200px;
+  font-size: 14px;
 }
 
+/* 送信ボタン */
 button {
-  padding: 8px 15px;
+  padding: 8px 14px;
+  margin-top: 5px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
-  background: #00ff88;
   cursor: pointer;
+  background: #00ffd5;
+  color: black;
   font-weight: bold;
+  transition: 0.2s;
 }
 
 button:hover {
-  background: #00cc6a;
+  background: #00c8aa;
+  transform: scale(1.05);
+}
+
+/* 削除ボタンだけ小さく */
+.message button {
+  background: #ff4d4d;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.message button:hover {
+  background: #cc0000;
+}
+
+/* スクロールバー（かっこよくする） */
+#chat::-webkit-scrollbar {
+  width: 8px;
+}
+
+#chat::-webkit-scrollbar-thumb {
+  background: #00ffd5;
+  border-radius: 10px;
+}
+
+#chat::-webkit-scrollbar-track {
+  background: #111;
 }
