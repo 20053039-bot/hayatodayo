@@ -69,6 +69,48 @@ h1 {
   padding: 10px;
   background: #1e1f22;
 }
+#comments {
+  max-width: 700px;
+  margin: auto;
+}
+
+.comment {
+  max-width: 60%;
+  padding: 10px 15px;
+  margin: 10px;
+  border-radius: 15px;
+  position: relative;
+}
+
+.comment.other {
+  background: #2b2d31;
+  color: white;
+  text-align: left;
+}
+
+.comment.me {
+  background: #5865f2;
+  color: white;
+  margin-left: auto;
+  text-align: right;
+}
+
+.name {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 5px;
+}
+
+.delete {
+  margin-top: 5px;
+  font-size: 10px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 3px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
 input {
   flex: 1;
