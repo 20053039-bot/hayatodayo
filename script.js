@@ -5,66 +5,63 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const chatDiv = document.getElementById("chat");
 
+let currentUser = localStorage.getItem("username");
+
+if (!currentUser) {
+  currentUser = prompt("名前を入力してください") || "名無し";
+  localStorage.setItem("username", currentUser);
+}
+
 async function loadMessages() {
-  const { data, error } = await supabaseClient
+  const { data } = await supabaseClient
     .from("chat")
     .select("*")
-    .order("id", { ascending: true });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
+    .order("created_at", { ascending: true });
 
   chatDiv.innerHTML = "";
 
   data.forEach(msg => {
+    const isMe = msg.user_id === currentUser;
+
     const div = document.createElement("div");
-    div.className = "message";
+    div.className = isMe ? "message me" : "message";
 
     div.innerHTML = `
-      <strong>${escapeHTML(msg.name)}</strong>: 
-      ${escapeHTML(msg.message)}
-      <br>
-      <button onclick="deleteMessage(${msg.id})">削除</button>
+      <div class="name">${escapeHTML(msg.name)}</div>
+      <div class="text">${escapeHTML(msg.message)}</div>
+      ${isMe ? `<button onclick="deleteMessage(${msg.id})">削除</button>` : ""}
     `;
 
     chatDiv.appendChild(div);
   });
+
+  chatDiv.scrollTop = chatDiv.scrollHeight;
 }
 
 async function sendMessage() {
-  const name = document.getElementById("name").value.trim();
-  const message = document.getElementById("message").value.trim();
+  const messageInput = document.getElementById("message");
+  const message = messageInput.value.trim();
+  if (!message) return;
 
-  if (!name || !message) {
-    alert("空欄があります");
-    return;
-  }
+  await supabaseClient.from("chat").insert([
+    {
+      name: currentUser,
+      message: message,
+      user_id: currentUser,
+      created_at: new Date()
+    }
+  ]);
 
-  const { error } = await supabaseClient
-    .from("chat")
-    .insert([{ name, message }]);
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  document.getElementById("message").value = "";
+  messageInput.value = "";
   loadMessages();
 }
 
 async function deleteMessage(id) {
-  const { error } = await supabaseClient
+  await supabaseClient
     .from("chat")
     .delete()
-    .eq("id", id);
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
+    .eq("id", id)
+    .eq("user_id", currentUser);
 
   loadMessages();
 }
@@ -76,7 +73,14 @@ function escapeHTML(str) {
     .replace(/>/g, "&gt;");
 }
 
-window.sendMessage = sendMessage;
-window.deleteMessage = deleteMessage;
-
 loadMessages();
+
+/* リアルタイム */
+supabaseClient
+  .channel("realtime-chat")
+  .on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "chat" },
+    () => loadMessages()
+  )
+  .subscribe();
