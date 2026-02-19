@@ -3,13 +3,42 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const chatDiv = document.getElementById("chat");
+const chatDiv = document.getElementById("comments");
 
-let currentUser = localStorage.getItem("username");
+let userId = localStorage.getItem("user_id");
+let userName = localStorage.getItem("username");
 
-if (!currentUser) {
-  currentUser = prompt("名前を入力してください") || "名無し";
-  localStorage.setItem("username", currentUser);
+// 一意ID生成
+if (!userId) {
+  userId = crypto.randomUUID();
+  localStorage.setItem("user_id", userId);
+}
+
+// 名前設定
+async function initUser() {
+  if (!userName) {
+    while (true) {
+      const input = prompt("名前を入力してください");
+      if (!input) continue;
+
+      const name = input.trim();
+
+      // 同じ名前が既にあるか確認
+      const { data } = await supabaseClient
+        .from("chat")
+        .select("name")
+        .eq("name", name)
+        .limit(1);
+
+      if (data.length > 0) {
+        alert("その名前は使われています");
+      } else {
+        userName = name;
+        localStorage.setItem("username", userName);
+        break;
+      }
+    }
+  }
 }
 
 async function loadMessages() {
@@ -21,15 +50,19 @@ async function loadMessages() {
   chatDiv.innerHTML = "";
 
   data.forEach(msg => {
-    const isMe = msg.user_id === currentUser;
+    const isMe = msg.user_id === userId;
 
     const div = document.createElement("div");
-    div.className = isMe ? "message me" : "message";
+    div.className = isMe ? "msg me" : "msg other";
 
     div.innerHTML = `
-      <div class="name">${escapeHTML(msg.name)}</div>
-      <div class="text">${escapeHTML(msg.message)}</div>
-      ${isMe ? `<button onclick="deleteMessage(${msg.id})">削除</button>` : ""}
+      <div class="name">${isMe ? "あなた" : escapeHTML(msg.name)}</div>
+      <div class="text">${escapeHTML(msg.comment)}</div>
+      ${
+        isMe
+          ? `<button class="delete" onclick="deleteMessage(${msg.id})">削除</button>`
+          : ""
+      }
     `;
 
     chatDiv.appendChild(div);
@@ -39,21 +72,19 @@ async function loadMessages() {
 }
 
 async function sendMessage() {
-  const messageInput = document.getElementById("message");
-  const message = messageInput.value.trim();
-  if (!message) return;
+  const text = document.getElementById("message").value.trim();
+  if (!text) return;
 
   await supabaseClient.from("chat").insert([
     {
-      name: currentUser,
-      message: message,
-      user_id: currentUser,
+      user_id: userId,
+      name: userName,
+      comment: text,
       created_at: new Date()
     }
   ]);
 
-  messageInput.value = "";
-  loadMessages();
+  document.getElementById("message").value = "";
 }
 
 async function deleteMessage(id) {
@@ -61,7 +92,7 @@ async function deleteMessage(id) {
     .from("chat")
     .delete()
     .eq("id", id)
-    .eq("user_id", currentUser);
+    .eq("user_id", userId);
 
   loadMessages();
 }
@@ -73,9 +104,7 @@ function escapeHTML(str) {
     .replace(/>/g, "&gt;");
 }
 
-loadMessages();
-
-/* リアルタイム */
+// リアルタイム
 supabaseClient
   .channel("realtime-chat")
   .on(
@@ -84,3 +113,8 @@ supabaseClient
     () => loadMessages()
   )
   .subscribe();
+
+(async () => {
+  await initUser();
+  loadMessages();
+})();
